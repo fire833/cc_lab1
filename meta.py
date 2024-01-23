@@ -5,6 +5,10 @@ import sys
 import os
 from templates.v1 import template as v1tmpl
 
+templates = {
+	"v1": v1tmpl,
+}
+
 def main():
 	values = []
 	arg_count = 0
