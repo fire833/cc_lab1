@@ -3,6 +3,7 @@ template = """
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 const int mult_pairs = {{ mult_pairs }};
 const int arg_count = {{ arg_count }};
@@ -81,14 +82,18 @@ int main(int argc, char **argv) {
 	}
 
 	int *input = parse_input(argv[2], input_len, output_len);
-
 	int *output = (int*)calloc(output_len, sizeof(int));
+	clock_t start, end;
 
+	start = clock();
 	compute(output_len, input, output);
+	end = clock();
 
 	for (int i = 0; i < output_len; i++) {
     	printf("%d ", output[i]);
   	}
+
+	printf("compute time: %f", ((double) (end - start)));
 
 	free(input);
 	free(output);
