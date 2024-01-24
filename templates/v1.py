@@ -7,61 +7,55 @@ template = """
 const int mult_pairs = {{ mult_pairs }};
 const int arg_count = {{ arg_count }};
 
-int *parse_input(char* input, int len) {
+int *parse_input(char* input, int input_len, int output_len) {
 	int index = 0;
-	int *output = (int *)malloc(((len + 1) / 2) * sizeof(int));
+	int *output = (int *)calloc(output_len, sizeof(int));
 	int sum = 0;
-
-	for (int i = 0; i < len; i++) {
+  	for (int i = 0; i < input_len; i++) {
     	// Shift over the sum and add a new value, whatever it may be.
     	switch (input[i]) {
     	case '0':
       		sum = 10 * sum;
-			continue;
+      		continue;
     	case '1':
       		sum = 10 * sum + 1;
-			continue;
+      		continue;
     	case '2':
       		sum = 10 * sum + 2;
-			continue;
+      		continue;
     	case '3':
       		sum = 10 * sum + 3;
-			continue;
+      		continue;
     	case '4':
       		sum = 10 * sum + 4;
-			continue;
+      		continue;
     	case '5':
       		sum = 10 * sum + 5;
-			continue;
+      		continue;
     	case '6':
       		sum = 10 * sum + 6;
-			continue;
+      		continue;
     	case '7':
       		sum = 10 * sum + 7;
-			continue;
+      		continue;
     	case '8':
       		sum = 10 * sum + 8;
-			continue;
+      		continue;
     	case '9':
       		sum = 10 * sum + 9;
-			continue;
+      		continue;
 
     	// We are at the end of the number, reset to a new sum.
     	case ',': {
       		output[index] = sum;
       		sum = 0;
       		index++;
-			continue;
+     		continue;
     	}
-    	// We are at the end of a line, return immediately.
-    	case '\\n' | EOF: {
-      		output[index] = sum;
-      		sum = 0;
-      		index++;
-      		break;
-    	} }
+    	}
   	}
 
+  	output[index] = sum;
 	return output;
 }
 
@@ -72,27 +66,25 @@ void compute(int n, int *input, int *output) {
 }
 
 int main(int argc, char **argv) {
-	if (argc != 2) {
-		printf("2 arguments are required, the program call name and the list of values, comma separated.");
+	if (argc != 3) {
+		printf("3 arguments are required, the program call name, the number of values (as an integer), and the list of values, comma separated.");
 		exit(1);
 	}
 
-	char *values = argv[1];
-	int value_length = strlen(values);
+	char *none;
+  	int input_len = strtol(argv[1], &none, 10);
+	int output_len = (input_len - arg_count + 1);
 
-	if (value_length % arg_count != 0) {
-		printf("must have an even multiple of values to %d arguments", arg_count);
+	if (input_len < arg_count) {
+		printf("must provide at least as many inputs as there are arguments (%d)", arg_count);
 		exit(1);
 	}
 
-	int *input = parse_input(values);
-	int input_len = (value_length / 2) + 1;
+	int *input = parse_input(argv[2], input_len, output_len);
 
-	int *output;
-	int output_len = (len - arg_count + 1);
-	output = (int*)malloc(output_len * sizeof(int));
+	int *output = (int*)calloc(output_len, sizeof(int));
 
-	compute(input_len, input, output);
+	compute(output_len, input, output);
 
 	for (int i = 0; i < output_len; i++) {
     	printf("%d ", output[i]);
