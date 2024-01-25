@@ -89,11 +89,16 @@ int main(int argc, char **argv) {
 	compute(output_len, input, output);
 	end = clock();
 
+	printf("{\\"values\\": [");
 	for (int i = 0; i < output_len; i++) {
-    	printf("%d ", output[i]);
+		if (i == output_len - 1) {
+			printf("%d],", output[i]);
+		} else {
+    		printf("%d,", output[i]);
+		}
   	}
 
-	printf("compute time: %f", ((double) (end - start)));
+	printf("\\"compute\\": %.1f}", ((double) (end - start)));
 
 	free(input);
 	free(output);
