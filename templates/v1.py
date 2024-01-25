@@ -8,11 +8,11 @@ template = """
 const int mult_pairs = {{ mult_pairs }};
 const int arg_count = {{ arg_count }};
 
-int *parse_input(char* input, int input_len, int output_len) {
+int *parse_input(char* input, int parsed_len) {
 	int index = 0;
-	int *output = (int *)calloc(output_len, sizeof(int));
+	int *output = (int *)calloc(parsed_len, sizeof(int));
 	int sum = 0;
-  	for (int i = 0; i < input_len; i++) {
+  	for (int i = 0; i < strlen(input); i++) {
     	// Shift over the sum and add a new value, whatever it may be.
     	switch (input[i]) {
     	case '0':
@@ -73,25 +73,25 @@ int main(int argc, char **argv) {
 	}
 
 	char *none;
-  	int input_len = strtol(argv[1], &none, 10);
-	int output_len = (input_len - arg_count + 1);
+  	int input_int_len = strtol(argv[1], &none, 10);
+	int output_int_len = (input_int_len - arg_count + 1);
 
-	if (input_len < arg_count) {
+	if (input_int_len < arg_count) {
 		printf("must provide at least as many inputs as there are arguments (%d)", arg_count);
 		exit(1);
 	}
 
-	int *input = parse_input(argv[2], input_len, output_len);
-	int *output = (int*)calloc(output_len, sizeof(int));
+	int *input = parse_input(argv[2], input_int_len);
+	int *output = (int*)calloc(output_int_len, sizeof(int));
 	clock_t start, end;
 
 	start = clock();
-	compute(output_len, input, output);
+	compute(output_int_len, input, output);
 	end = clock();
 
 	printf("{\\"values\\": [");
-	for (int i = 0; i < output_len; i++) {
-		if (i == output_len - 1) {
+	for (int i = 0; i < output_int_len; i++) {
+		if (i == output_int_len - 1) {
 			printf("%d],", output[i]);
 		} else {
     		printf("%d,", output[i]);
