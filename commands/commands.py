@@ -69,7 +69,7 @@ def generate(pattern: str, template: str, outputs: str, output: str, compiler: s
 
 		env = jinja2.Environment()
 		t = env.from_string(templates[template])
-		f = open(file=output, mode="w")
+		f = open(file=outputs, mode="w")
 		f.write(t.render(mult_pairs=mult_pairs, arg_count=arg_count, sums=values))
 		f.close()
 		
