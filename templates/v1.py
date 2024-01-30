@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 		}
   	}
 
-	printf("\\"compute\\": %.1f}", ((double) (end - start)));
+	printf("\\"compute\\": %.1f}\n", ((double) (end - start)));
 
 	free(input);
 	free(output);
