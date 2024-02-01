@@ -41,7 +41,7 @@ def runner(args: ArgumentParser):
 	# print(args)
 	if sys.argv[1] == "generate":
 		print("generating new output program")
-		return generate(args.pattern, args.template, args.outputs, args.output, args.compiler, True)
+		return generate(args.pattern, args.template, args.outputs, args.output, args.compiler, True, False)
 	elif sys.argv[1] == "run":
 		print("running output program")
 		return run(args.input, [int(arg) for arg in args.values.split(",")])
@@ -53,7 +53,7 @@ templates = {
 	"v1": v1tmpl,
 }
 
-def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool):
+def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool):
 	if templates[template]:
 		values = []
 		arg_count = 0
@@ -72,10 +72,15 @@ def generate(pattern: str, template: str, outputs: str, output: str, compiler: s
 		f = open(file=outputs, mode="w")
 		f.write(t.render(mult_pairs=mult_pairs, arg_count=arg_count, sums=values))
 		f.close()
-		
-		subprocess.run([compiler, "-O3", "-Wall", "-o", output, outputs])
+
+		args = [compiler, "-O3", "-Wall", "-o", output]
 		if asm:
-			subprocess.run([compiler, "-S", "-O3", "-Wall", "-o", f"{output}.S", outputs])
+			args.append("-S")
+		if omp:
+			args.append("-fopenmp")
+		
+		args.append(outputs)
+		subprocess.run(args)
 	else:
 		print("please specify a valid template to use")
 
