@@ -3,3 +3,4 @@ prog.c
 .gdb_history
 prog
 *.S
+outputs

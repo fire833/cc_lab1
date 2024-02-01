@@ -6,6 +6,7 @@ import sys
 import subprocess
 import os
 import random
+import csv
 
 def new_parser():
 	p = ArgumentParser(prog=sys.argv[0], description="Wrapper scripts/utilities for Lab 1 Metaprogramming", add_help=True, allow_abbrev=True)
@@ -35,7 +36,7 @@ def new_parser():
 	rrand.add_argument("--argc", help="Provide the number of arguments that are expected in your generated program.", type=int, dest="argc")
 	rrand.add_argument("--arga", help="Provide the number of additional arguments that are expected in your generated program.", type=int, dest="arga")
 	rrand.set_defaults(func=run_rand)
-
+	rrprt = sub.add_parser("runreport")
 
 	return p
 
@@ -50,6 +51,9 @@ def runner(args: ArgumentParser):
 	elif sys.argv[1] == "runrand":
 		print("running output program with random inputs")
 		return run_rand(args.input, args.iterations, args.argc, args.arga)
+	elif sys.argv[1] == "runreport":
+		print("running reporting")
+		return run_report([50], [5,10,50,100,1000,10000], [], ["v1"], "./outputs")
 
 templates = {
 	"v1": v1tmpl,
@@ -103,3 +107,13 @@ def run_rand(input: str, iterations: int, arg_count: int, additional_args: int):
 	s = arg_count + additional_args
 	for i in range(iterations):
 		run(input, [int(random.randint(1,1000)) for i in range(s)])
+
+def run_report(iter_sizes: [int], arga_sizes: [int], patterns: [str], tmplversions: [str], output: str):
+	for tmpl in tmplversions:
+		for pattern in patterns:
+			pat = pattern.replace(" ", "_")
+			out = format(f"{output}/{tmpl}_{pat}")
+			generate(pattern, tmpl, out + ".c", out)
+			for iter in iter_sizes:
+				for arga in arga_sizes:
+					run_rand()
