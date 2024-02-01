@@ -70,7 +70,7 @@ void compute(int n, int *input, int *output) {
 	#pragma omp parallel for num_threads(threads)
 	for (int i = 0; i < n - (n % 2); i += 2) {
 		output[i] = {% for sum in sums %}({% for value in sum %}input[i+{{ value }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};
-        output[i + 1] = {% for sum in sums %}({% for value in sum %}input[i+{{ value }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};
+        output[i + 1] = {% for sum in sums %}({% for value in sum %}input[i+{{ value }}+1]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};
 	}
     for(int i = n - (n % 2) ; i < n ; i++){
 		output[i] = {% for sum in sums %}({% for value in sum %}input[i+{{ value }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};

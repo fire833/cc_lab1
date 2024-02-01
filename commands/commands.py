@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from templates.v1 import template as v1tmpl
+from templates.v2 import template as v2tmpl
 import jinja2
 import sys
 import subprocess
@@ -52,6 +53,7 @@ def runner(args: ArgumentParser):
 
 templates = {
 	"v1": v1tmpl,
+	"v2": v2tmpl
 }
 
 def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool):
