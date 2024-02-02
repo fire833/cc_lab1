@@ -7,6 +7,7 @@ import subprocess
 import os
 import random
 import csv
+import json
 
 def new_parser():
 	p = ArgumentParser(prog=sys.argv[0], description="Wrapper scripts/utilities for Lab 1 Metaprogramming", add_help=True, allow_abbrev=True)
@@ -101,19 +102,25 @@ def run(input: str, args: [int]):
 	for i in args:
 		parsed += f"{i},"
 
-	return subprocess.run([input, str(len(args)), parsed.rstrip(",")])
+	return json.loads(subprocess.run([input, str(len(args)), parsed.rstrip(",")], capture_output=True).stdout.decode()) 
 
 def run_rand(input: str, iterations: int, arg_count: int, additional_args: int):
 	s = arg_count + additional_args
-	for i in range(iterations):
-		run(input, [int(random.randint(1,1000)) for i in range(s)])
+	outputs = []
 
-def run_report(iter_sizes: [int], arga_sizes: [int], patterns: [str], tmplversions: [str], output: str):
+	for i in range(iterations):
+		outputs.append(run(input, [int(random.randint(1,1000)) for i in range(s)]))
+
+	return outputs
+
+def run_report(iter_sizes: [int], arga_sizes: [int], patterns: [(str, int)], tmplversions: [str], output: str):
 	for tmpl in tmplversions:
 		for pattern in patterns:
-			pat = pattern.replace(" ", "_")
-			out = format(f"{output}/{tmpl}_{pat}")
-			generate(pattern, tmpl, out + ".c", out)
+			pat = pattern[0].replace(" ", "_").replace(",", "-")
+			out = f"{output}/{tmpl}_{pat}"
+			generate(pattern[0], tmpl, out + ".c", out)
 			for iter in iter_sizes:
 				for arga in arga_sizes:
-					run_rand()
+					col = f"{tmpl}_{pat}_{iter}_{arga}"
+					outputs = run_rand(out, iter, pattern[1], arga)
+					

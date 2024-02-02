@@ -75,7 +75,7 @@ void compute(int n, int *input, int *output) {
 
 int main(int argc, char **argv) {
 	if (argc != 3) {
-		printf("3 arguments are required, the program call name, the number of values (as an integer), and the list of values, comma separated.");
+		printf("{\\"error\\": \\"3 arguments are required, the program call name, the number of values (as an integer), and the list of values, comma separated.\\",\\"code\\":1}");
 		exit(1);
 	}
 
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 	int output_int_len = (input_int_len - arg_count + 1);
 
 	if (input_int_len < arg_count) {
-		printf("must provide at least as many inputs as there are arguments (%d)", arg_count);
+		printf("{\\"error\\": \\"must provide at least as many inputs as there are arguments (%d)\\",\\"code\\":1}", arg_count);
 		exit(1);
 	}
 
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 		}
   	}
 
-	printf("\\"compute\\": %.1f}\\n", ((double) (end - start)));
+	printf("\\"compute\\": %.1f,\\"code\\":0}\\n", ((double) (end - start)));
 
 	free(input);
 	free(output);
