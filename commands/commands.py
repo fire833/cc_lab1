@@ -54,7 +54,7 @@ def runner(args: ArgumentParser):
 		return run_rand(args.input, args.iterations, args.argc, args.arga)
 	elif sys.argv[1] == "runreport":
 		print("running reporting")
-		return run_report([50], [5,10,50,100,1000,10000], [], ["v1"], "./outputs")
+		return run_report([250], [5,10,50,100,1000,10000], [("0,1 2,3", 4), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8)], ["v1"], "./outputs")
 
 templates = {
 	"v1": v1tmpl,
@@ -118,9 +118,18 @@ def run_report(iter_sizes: [int], arga_sizes: [int], patterns: [(str, int)], tmp
 		for pattern in patterns:
 			pat = pattern[0].replace(" ", "_").replace(",", "-")
 			out = f"{output}/{tmpl}_{pat}"
-			generate(pattern[0], tmpl, out + ".c", out)
+			generate(pattern[0], tmpl, out + ".c", out, "gcc", False, False)
 			for iter in iter_sizes:
 				for arga in arga_sizes:
-					col = f"{tmpl}_{pat}_{iter}_{arga}"
+					csvfile = f"{output}/{tmpl}_{pat}_{iter}_{arga}.csv"
 					outputs = run_rand(out, iter, pattern[1], arga)
-					
+					write_csv(outputs, csvfile)
+
+def write_csv(outputs, output: str):
+	f = open(output, "w")
+	for out in outputs:
+		if out["compute"]:
+			v = out["compute"]
+			f.write(f"{v}\n")
+
+	f.close()
