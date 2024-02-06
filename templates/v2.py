@@ -67,12 +67,12 @@ void compute(int n, int *input, int *output) {
 	#ifdef _OPENMP
   	int threads = omp_get_num_threads();
 	#endif
+    int unroll_iters = n - (n % {{unroll_len}});
 	#pragma omp parallel for num_threads(threads)
-	for (int i = 0; i < n - (n % 2); i += 2) {
-		output[i] = {% for sum in sums %}({% for value in sum %}input[i+{{ value }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};
-        output[i + 1] = {% for sum in sums %}({% for value in sum %}input[i+{{ value }}+1]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};
+	for (int i = 0; i < unroll_iters; i += {{unroll_len}}) {
+		{% for j in range(0, unroll_len) %}output[i + {{j}}] = {% for sum in sums %}({% for value in sum %}input[i+{{ value + j }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};\n\t\t{% endfor %}
 	}
-    for(int i = n - (n % 2) ; i < n ; i++){
+    for(int i = unroll_iters; i < n ; i++){
 		output[i] = {% for sum in sums %}({% for value in sum %}input[i+{{ value }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};
 	}
 }

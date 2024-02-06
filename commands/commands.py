@@ -26,6 +26,7 @@ def new_parser():
 	gen.add_argument("--compiler", help="Provide the path/name of your desired compiler.", type=str, default="gcc", dest="compiler")
 	gen.add_argument("--openmp", help="Specify whether to compile the metaprogram with OpenMP enabled.", type=bool, default=False, dest="openmp")
 	gen.add_argument("--asm", help="Specify whether to generate an output assembly program for analysis with a tool like OSACA.", type=bool, default=True, dest="asm")
+	gen.add_argument("--unroll", help="Specify the amount of outputs to compute per iteration when loop unrolling. Only used with v2 template.", type=int, default=1, dest="unroll")
 	gen.set_defaults(func=generate)
 	r = sub.add_parser("run")
 	r.add_argument("--values", help="Provide a comma-separated list of integers to pass to the generated program.", type=str, dest="values")
@@ -45,7 +46,7 @@ def runner(args: ArgumentParser):
 	# print(args)
 	if sys.argv[1] == "generate":
 		print("generating new output program")
-		return generate(args.pattern, args.template, args.outputs, args.output, args.compiler, args.asm, args.openmp)
+		return generate(args.pattern, args.template, args.outputs, args.output, args.compiler, args.asm, args.openmp, args.unroll)
 	elif sys.argv[1] == "run":
 		print("running output program")
 		return run(args.input, [int(arg) for arg in args.values.split(",")])
@@ -61,7 +62,7 @@ templates = {
 	"v2": v2tmpl
 }
 
-def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool):
+def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool, unroll_len: int):
 	if templates[template]:
 		values = []
 		arg_count = 0
@@ -78,7 +79,7 @@ def generate(pattern: str, template: str, outputs: str, output: str, compiler: s
 		env = jinja2.Environment()
 		t = env.from_string(templates[template])
 		f = open(file=outputs, mode="w")
-		f.write(t.render(mult_pairs=mult_pairs, arg_count=arg_count, sums=values))
+		f.write(t.render(mult_pairs=mult_pairs, arg_count=arg_count, sums=values, unroll_len=unroll_len))
 		f.close()
 
 		args = [compiler, "-O3", "-Wall", "-o", output]
