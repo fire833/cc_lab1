@@ -4,3 +4,4 @@ prog.c
 prog
 *.S
 outputs
+*.html

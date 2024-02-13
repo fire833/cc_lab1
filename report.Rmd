@@ -1,0 +1,28 @@
+---
+title: Lab Report
+author: Kendall Tauser, Jonas Metzger, Darren Fa
+date: February 19th, 2024
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 4
+---
+
+```{r}
+library(ggplot2)
+files <- list.files(path = "outputs", pattern = ".csv", full.names = TRUE)
+
+datasets <- c()
+
+# files
+for (f in files) {
+  dataset <- read.csv(f)
+  summary(dataset$TIMINGS)
+  boxplot(dataset$TIMINGS,
+    col = "Red", data = dataset, main = f,
+    horizontal = TRUE
+  )
+  append(datasets, dataset)
+}
+```

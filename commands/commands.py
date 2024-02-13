@@ -39,6 +39,7 @@ def new_parser():
 	rrand.add_argument("--arga", help="Provide the number of additional arguments that are expected in your generated program.", type=int, dest="arga")
 	rrand.set_defaults(func=run_rand)
 	rrprt = sub.add_parser("runreport")
+	rtest = sub.add_parser("runtest")
 
 	return p
 
@@ -55,7 +56,9 @@ def runner(args: ArgumentParser):
 		return run_rand(args.input, args.iterations, args.argc, args.arga)
 	elif sys.argv[1] == "runreport":
 		print("running reporting")
-		return run_report([250], [5,10,50,100,1000,10000], [("0,1 2,3", 4), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8)], ["v1"], "./outputs")
+		return run_report([("0,1 2,3", 4), ("0 1", 2), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8), ("0 1 2 3 4 5", 6)], ["v1", "v2"], "./outputs")
+	elif sys.argv[1] == "runtest":
+		print("running tests")
 
 templates = {
 	"v1": v1tmpl,
@@ -114,20 +117,26 @@ def run_rand(input: str, iterations: int, arg_count: int, additional_args: int):
 
 	return outputs
 
-def run_report(iter_sizes: [int], arga_sizes: [int], patterns: [(str, int)], tmplversions: [str], output: str):
+def run_report(patterns: [(str, int)], tmplversions: [str], output: str):
 	for tmpl in tmplversions:
 		for pattern in patterns:
 			pat = pattern[0].replace(" ", "_").replace(",", "-")
 			out = f"{output}/{tmpl}_{pat}"
-			generate(pattern[0], tmpl, out + ".c", out, "gcc", False, False)
-			for iter in iter_sizes:
-				for arga in arga_sizes:
-					csvfile = f"{output}/{tmpl}_{pat}_{iter}_{arga}.csv"
-					outputs = run_rand(out, iter, pattern[1], arga)
-					write_csv(outputs, csvfile)
+
+			for i in range(2):
+				doOpenMP = False
+				csvfile = f"{output}/{tmpl}_{pat}.csv"
+				if i == 1:
+					csvfile = f"{output}/{tmpl}_{pat}_omp.csv"
+					doOpenMP = True
+
+				generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1)
+				outputs = run_rand(out, 250, pattern[1], 20000)
+				write_csv(outputs, csvfile)
 
 def write_csv(outputs, output: str):
 	f = open(output, "w")
+	f.write("TIMINGS\n")
 	for out in outputs:
 		if out["compute"]:
 			v = out["compute"]
