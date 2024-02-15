@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from templates.v1 import template as v1tmpl
 from templates.v2 import template as v2tmpl
+from templates.v2_1 import template as v2_1tmpl
 import jinja2
 import sys
 import subprocess
@@ -62,7 +63,8 @@ def runner(args: ArgumentParser):
 
 templates = {
 	"v1": v1tmpl,
-	"v2": v2tmpl
+	"v2": v2tmpl,
+	"v2.1": v2_1tmpl,
 }
 
 def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool, unroll_len: int):
@@ -79,10 +81,16 @@ def generate(pattern: str, template: str, outputs: str, output: str, compiler: s
 
 		mult_pairs = len(values)
 
+		unroll_lens = []
+		urn_len = unroll_len
+		while urn_len > 0:
+			unroll_lens.append(urn_len)
+			urn_len //=2
+
 		env = jinja2.Environment()
 		t = env.from_string(templates[template])
 		f = open(file=outputs, mode="w")
-		f.write(t.render(mult_pairs=mult_pairs, arg_count=arg_count, sums=values, unroll_len=unroll_len))
+		f.write(t.render(mult_pairs=mult_pairs, arg_count=arg_count, sums=values, unroll_len=unroll_len, unroll_lens=unroll_lens))
 		f.close()
 
 		args = [compiler, "-O3", "-Wall", "-o", output]
