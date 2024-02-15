@@ -5,3 +5,4 @@ prog
 *.S
 outputs
 *.html
+tests

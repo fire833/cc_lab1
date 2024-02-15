@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from templates.v1 import template as v1tmpl
 from templates.v2 import template as v2tmpl
 from templates.v2_1 import template as v2_1tmpl
+import numpy as np
 import jinja2
 import sys
 import subprocess
@@ -40,7 +41,7 @@ def new_parser():
 	rrand.add_argument("--arga", help="Provide the number of additional arguments that are expected in your generated program.", type=int, dest="arga")
 	rrand.set_defaults(func=run_rand)
 	rrprt = sub.add_parser("runreport")
-	rtest = sub.add_parser("runtest")
+	rtest = sub.add_parser("runtests")
 
 	return p
 
@@ -58,8 +59,9 @@ def runner(args: ArgumentParser):
 	elif sys.argv[1] == "runreport":
 		print("running reporting")
 		return run_report([("0,1 2,3", 4), ("0 1", 2), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8), ("0 1 2 3 4 5", 6)], ["v1", "v2"], "./outputs")
-	elif sys.argv[1] == "runtest":
+	elif sys.argv[1] == "runtests":
 		print("running tests")
+		return run_tests(["v1", "v2"])
 
 templates = {
 	"v1": v1tmpl,
@@ -138,7 +140,7 @@ def run_report(patterns: [(str, int)], tmplversions: [str], output: str):
 					csvfile = f"{output}/{tmpl}_{pat}_omp.csv"
 					doOpenMP = True
 
-				generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1)
+				generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
 				outputs = run_rand(out, 250, pattern[1], 20000)
 				write_csv(outputs, csvfile)
 
@@ -151,3 +153,24 @@ def write_csv(outputs, output: str):
 			f.write(f"{v}\n")
 
 	f.close()
+
+def run_tests(tmplversions: [str]):
+	tests = [
+		("0,1 2,3", [1,2,3,4], [21]),
+		("0,1", [1,2,3,4,5,6], [3, 5, 7, 9, 11]),
+	]
+
+	for tmpl in tmplversions:
+		for (i, test) in enumerate(tests):
+			tOut = f"tests/test{i}_{tmpl}"
+			generate(test[0], tmpl, f"tests/test{i}_{tmpl}.c", tOut, "gcc", False, False, 512)
+			res = run(tOut, test[1])
+			if not res["values"]:
+				print(f"test {i} failed: no values outputs")
+			else:
+				outputArr = np.array(res["values"])
+				expectedArr = np.array(test[2])
+				if (np.array_equal(outputArr, expectedArr)):
+					print(f"test {i} passed")
+				else:
+					print(f"test {i} failed, comparison inequality")

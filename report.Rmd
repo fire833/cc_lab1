@@ -18,7 +18,7 @@ datasets <- c()
 # files
 for (f in files) {
   dataset <- read.csv(f)
-  summary(dataset$TIMINGS)
+  print(summary(dataset$TIMINGS))
   boxplot(dataset$TIMINGS,
     col = "Red", data = dataset, main = f,
     horizontal = TRUE
