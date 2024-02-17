@@ -4,6 +4,7 @@ from templates.v1_1 import template as v1_1tmpl
 from templates.v1_2 import template as v1_2tmpl
 from templates.v2 import template as v2tmpl
 from templates.v2_1 import template as v2_1tmpl
+from templates.v2_2 import template as v2_2tmpl
 import numpy as np
 import jinja2
 import sys
@@ -19,6 +20,7 @@ templates = {
 	"v1.2": v1_2tmpl,
 	"v2": v2tmpl,
 	"v2.1": v2_1tmpl,
+	"v2.2": v2_2tmpl,
 }
 
 def new_parser():
@@ -164,7 +166,9 @@ def run_tests(tmplversions: [str]):
 		("0,1 2,3", [1,2,3,4,5], [21, 45]),
 		("0,1 2,3", [1,2,3,4,5,6], [21, 45, 77]),
 		("0,1", [1,2,3,4,5,6], [3, 5, 7, 9, 11]),
-		("0", [1,2,3,4,5,6], [1, 2, 3, 4, 5, 6]),
+		("0", [1,2,3,4,5,6,7,8], [1, 2, 3, 4, 5, 6, 7, 8]),
+		("0", [1], [1]),
+		# ("0", [1,2,3,4,5,6], [1, 2, 3, 4, 5, 6]),
 		("0,1,2 3", [1,2,3,4,5], [24, 45]),
 		("0,1,2 3", [1,2,3,4,5,1], [24, 45, 12]),
 		("0 1 2 3", [0,2,3,4,1,2,3], [0, 24, 24, 24]),
@@ -177,19 +181,23 @@ def run_tests(tmplversions: [str]):
 		("2,1 0", [5,4,6,3], [50, 36]),
 	]
 
+	tOut = f"tests/test"
 	for tmpl in tmplversions:
 		for (i, test) in enumerate(tests):
-			tOut = f"tests/test"
-			generate(test[0], tmpl, f"tests/test_{tmpl}_{i}.c", tOut, "gcc", False, False, 5)
-			res = run(tOut, test[1])
-			if not res["values"]:
-				print(f"test {i} failed version {tmpl}: no values outputs")
-				exit(1)
-			else:
-				outputArr = np.array(res["values"])
-				expectedArr = np.array(test[2])
-				if (np.array_equal(outputArr, expectedArr)):
-					print(f"test {i} passed version {tmpl}")
+			for doOmp in range(2):
+				if doOmp == 1:
+					generate(test[0], tmpl, f"tests/test_{tmpl}_{i}_omp.c", tOut, "gcc", False, True, 5)
 				else:
-					print(f"test {i} failed version {tmpl}, comparison inequality")
+					generate(test[0], tmpl, f"tests/test_{tmpl}_{i}.c", tOut, "gcc", False, False, 5)
+				res = run(tOut, test[1])
+				if not res["values"]:
+					print(f"test {i} failed version {tmpl} omp: {doOmp}: no values outputs")
 					exit(1)
+				else:
+					outputArr = np.array(res["values"])
+					expectedArr = np.array(test[2])
+					if (np.array_equal(outputArr, expectedArr)):
+						print(f"test {i} passed version {tmpl} omp: {doOmp}")
+					else:
+						print(f"test {i} failed version {tmpl} omp: {doOmp}, comparison inequality")
+						exit(1)
