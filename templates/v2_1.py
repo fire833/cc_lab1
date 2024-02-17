@@ -70,9 +70,11 @@ void compute(int n, int *input, int *output) {
     int unroll_iters = 0, i = 0;
     {% for u in unroll_lens %}
         unroll_iters = n - (n % {{u}});
-        # pragma omp parallel for num_threads(threads)
+		#ifdef _OPENMP
+        #pragma omp parallel for num_threads(threads)
+		#endif
         for (i = i; i < unroll_iters; i += {{u}}) {
-            {% for j in range(0, u) %}output[i + {{j}}] = {% for sum in sums %}({% for value in sum %}input[i+{{ value + j }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};\n\t\t{% endfor %}
+            {% for j in range(0, u) %}output[i + {{j}}] = {% for sum in sums %}({% for value in sum %}input[i+{{ value + j }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};{% endfor %}
         }
     {% endfor %}
 }

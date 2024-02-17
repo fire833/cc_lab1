@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 from templates.v1 import template as v1tmpl
+from templates.v1_1 import template as v1_1tmpl
+from templates.v1_2 import template as v1_2tmpl
 from templates.v2 import template as v2tmpl
 from templates.v2_1 import template as v2_1tmpl
 import numpy as np
@@ -10,6 +12,14 @@ import os
 import random
 import csv
 import json
+
+templates = {
+	"v1": v1tmpl,
+	"v1.1": v1_1tmpl,
+	"v1.2": v1_2tmpl,
+	"v2": v2tmpl,
+	"v2.1": v2_1tmpl,
+}
 
 def new_parser():
 	p = ArgumentParser(prog=sys.argv[0], description="Wrapper scripts/utilities for Lab 1 Metaprogramming", add_help=True, allow_abbrev=True)
@@ -58,16 +68,10 @@ def runner(args: ArgumentParser):
 		return run_rand(args.input, args.iterations, args.argc, args.arga)
 	elif sys.argv[1] == "runreport":
 		print("running reporting")
-		return run_report([("0,1 2,3", 4), ("0 1", 2), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8), ("0 1 2 3 4 5", 6)], ["v1", "v2"], "./outputs")
+		return run_report([("0,1 2,3", 4), ("0 1", 2), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8), ("0 1 2 3 4 5", 6), ("0,1 2,3 4,5 6,7 8,9", 10)], templates.keys(), "./outputs")
 	elif sys.argv[1] == "runtests":
 		print("running tests")
-		return run_tests(["v1", "v2"])
-
-templates = {
-	"v1": v1tmpl,
-	"v2": v2tmpl,
-	"v2.1": v2_1tmpl,
-}
+		return run_tests(templates.keys())
 
 def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool, unroll_len: int):
 	if templates[template]:
@@ -157,20 +161,35 @@ def write_csv(outputs, output: str):
 def run_tests(tmplversions: [str]):
 	tests = [
 		("0,1 2,3", [1,2,3,4], [21]),
+		("0,1 2,3", [1,2,3,4,5], [21, 45]),
+		("0,1 2,3", [1,2,3,4,5,6], [21, 45, 77]),
 		("0,1", [1,2,3,4,5,6], [3, 5, 7, 9, 11]),
+		("0", [1,2,3,4,5,6], [1, 2, 3, 4, 5, 6]),
+		("0,1,2 3", [1,2,3,4,5], [24, 45]),
+		("0,1,2 3", [1,2,3,4,5,1], [24, 45, 12]),
+		("0 1 2 3", [0,2,3,4,1,2,3], [0, 24, 24, 24]),
+		("0,1,2,3", [0,2,3,4,1,2,3], [9, 10, 10, 10]),
+		("0,1,2,3 4 5", [3,4,5,1,2,3,5], [78, 180]),
+		("0,2,3 1", [5,4,3,2,1,2,3,4], [40, 21, 12, 7, 16]),
+		("1,2,3 0", [5,3,7,5,6,2,2,4], [75, 54, 91, 50, 48]),
+		("0,2,1 2,1,0 2,0,1", [10,9,8,7,6,5,4,6,7,21,7,132,65,23], [19683, 13824, 9261, 5832, 3375, 3375]),
+		("2,1 0,3", [5,4,6,3,7,2,8], [80, 99, 80, 99]),
+		("2,1 0", [5,4,6,3], [50, 36]),
 	]
 
 	for tmpl in tmplversions:
 		for (i, test) in enumerate(tests):
-			tOut = f"tests/test{i}_{tmpl}"
-			generate(test[0], tmpl, f"tests/test{i}_{tmpl}.c", tOut, "gcc", False, False, 512)
+			tOut = f"tests/test"
+			generate(test[0], tmpl, f"tests/test_{tmpl}_{i}.c", tOut, "gcc", False, False, 5)
 			res = run(tOut, test[1])
 			if not res["values"]:
-				print(f"test {i} failed: no values outputs")
+				print(f"test {i} failed version {tmpl}: no values outputs")
+				exit(1)
 			else:
 				outputArr = np.array(res["values"])
 				expectedArr = np.array(test[2])
 				if (np.array_equal(outputArr, expectedArr)):
-					print(f"test {i} passed")
+					print(f"test {i} passed version {tmpl}")
 				else:
-					print(f"test {i} failed, comparison inequality")
+					print(f"test {i} failed version {tmpl}, comparison inequality")
+					exit(1)

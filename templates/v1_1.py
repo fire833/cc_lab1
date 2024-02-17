@@ -4,9 +4,6 @@ template = """
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 const int mult_pairs = {{ mult_pairs }};
 const int arg_count = {{ arg_count }};
@@ -64,17 +61,7 @@ int *parse_input(char* input, int parsed_len) {
 }
 
 void compute(int n, int *input, int *output) {
-	#ifdef _OPENMP
-  	int threads = omp_get_num_threads();
-	#endif
-    int unroll_iters = n - (n % {{unroll_len}});
-	#ifdef _OPENMP
-	#pragma omp parallel for num_threads(threads)
-	#endif
-	for (int i = 0; i < unroll_iters; i += {{unroll_len}}) {
-		{% for j in range(0, unroll_len) %}output[i + {{j}}] = {% for sum in sums %}({% for value in sum %}input[i+{{ value + j }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};{% endfor %}
-	}
-    for(int i = unroll_iters; i < n ; i++){
+	for (int i = 0; i < n; i++) {
 		output[i] = {% for sum in sums %}({% for value in sum %}input[i+{{ value }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};
 	}
 }
