@@ -46,23 +46,116 @@ library(ggplot2)
 ```
 
 ```{r}
-files <- list.files(path = "outputs", pattern = ".csv", full.names = TRUE)
+v1_1_1_0_1_t1 <- read.csv("benchmarks/v1.1_0_1_omp_t1.csv")
+v1_1_1_0_1_t8 <- read.csv("benchmarks/v1.1_0_1_omp_t8.csv")
+v1_1_1_0_1_t16 <- read.csv("benchmarks/v1.1_0_1_omp_t16.csv")
 
-datasets <- c()
+v1_2_1_0_1_t1 <- read.csv("benchmarks/v1.2_0_1_omp_t1.csv")
+v1_2_1_0_1_t8 <- read.csv("benchmarks/v1.2_0_1_omp_t8.csv")
+v1_2_1_0_1_t16 <- read.csv("benchmarks/v1.2_0_1_omp_t16.csv")
 
-# files
-for (f in files) {
-  dataset <- read.csv(f)$TIMINGS
+v2_0_1_0_1_t1 <- read.csv("benchmarks/v2_0_1_omp_t1.csv")
+v2_0_1_0_1_t8 <- read.csv("benchmarks/v2_0_1_omp_t8.csv")
+v2_0_1_0_1_t16 <- read.csv("benchmarks/v2_0_1_omp_t16.csv")
 
-  z <- ktrutils::get_z(dataset)
-  dataset_pruned <- dataset[abs(z) < 3]
+v2_1_1_0_1_t1 <- read.csv("benchmarks/v2.1_0_1_omp_t1.csv")
+v2_1_1_0_1_t8 <- read.csv("benchmarks/v2.1_0_1_omp_t8.csv")
+v2_1_1_0_1_t16 <- read.csv("benchmarks/v2.1_0_1_omp_t16.csv")
 
-  print(summary(dataset))
-  print(summary(dataset_pruned))
-  boxplot(dataset_pruned,
-    col = "Red", data = dataset_pruned, main = f,
-    horizontal = TRUE
-  )
-  append(datasets, dataset_pruned)
-}
+v2_2_1_0_1_t1 <- read.csv("benchmarks/v2.2_0_1_omp_t1.csv")
+v2_2_1_0_1_t8 <- read.csv("benchmarks/v2.2_0_1_omp_t8.csv")
+v2_2_1_0_1_t16 <- read.csv("benchmarks/v2.2_0_1_omp_t16.csv")
+```
+
+```{r}
+summary(v1_1_1_0_1_t1)
+summary(v1_1_1_0_1_t8)
+summary(v1_1_1_0_1_t16)
+
+summary(v1_2_1_0_1_t1)
+summary(v1_2_1_0_1_t8)
+summary(v1_2_1_0_1_t16)
+
+summary(v2_0_1_0_1_t1)
+summary(v2_0_1_0_1_t8)
+summary(v2_0_1_0_1_t16)
+
+summary(v2_1_1_0_1_t1)
+summary(v2_1_1_0_1_t8)
+summary(v2_1_1_0_1_t16)
+
+summary(v2_2_1_0_1_t1)
+summary(v2_2_1_0_1_t8)
+summary(v2_2_1_0_1_t16)
+```
+
+```{r}
+boxplot(v1_1_1_0_1_t1,
+  main = "v1.1 - 1 thread"
+)
+
+boxplot(v1_1_1_0_1_t8,
+  main = "v1.1 - 8 thread"
+)
+
+boxplot(v1_1_1_0_1_t16,
+  main = "v1.1 - 16 thread"
+)
+```
+
+```{r}
+boxplot(v1_2_1_0_1_t1,
+  main = "v1.2 - 1 thread"
+)
+
+boxplot(v1_2_1_0_1_t8,
+  main = "v1.2 - 8 thread"
+)
+
+boxplot(v1_2_1_0_1_t16,
+  main = "v1.2 - 16 thread"
+)
+```
+
+```{r}
+boxplot(v2_0_1_0_1_t1,
+  main = "v2 - 1 thread"
+)
+
+boxplot(v2_0_1_0_1_t8,
+  main = "v2 - 8 thread"
+)
+
+boxplot(v2_0_1_0_1_t16,
+  main = "v2 - 16 thread"
+)
+```
+
+```{r}
+boxplot(v2_1_1_0_1_t1,
+  main = "v2.1 - 1 thread"
+)
+
+boxplot(v2_1_1_0_1_t8,
+  main = "v2.1 - 8 thread"
+)
+
+boxplot(v2_1_1_0_1_t16,
+  main = "v2.1 - 16 thread"
+)
+```
+
+
+```{r}
+boxplot(v2_2_1_0_1_t1,
+  main = "v2.2 - 1 thread"
+)
+
+boxplot(v2_2_1_0_1_t8,
+  main = "v2.2 - 8 thread"
+)
+
+boxplot(v2_2_1_0_1_t16,
+  main = "v2.2 - 16 thread"
+)
 ```
