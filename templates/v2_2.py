@@ -13,6 +13,7 @@ const int arg_count = {{ arg_count }};
 
 int *parse_input(char* input, int parsed_len) {
 	int index = 0;
+    printf(" ");
 	int *output = (int *)calloc(parsed_len, sizeof(int));
 	int sum = 0;
   	for (int i = 0; i < strlen(input); i++) {
@@ -77,6 +78,7 @@ void compute(int n, int *input, int *output) {
         for (int j = i; j < unroll_iters; j += {{u}}) {
             {% for j in range(0, u) %}output[j + {{j}}] = {% for sum in sums %}({% for value in sum %}input[j+{{ value + j }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};{% endfor %}
         }
+        i = unroll_iters;
     {% endfor %}
 	}
 }
