@@ -82,7 +82,7 @@ def runner(args: ArgumentParser):
 		return run_rand(args.input, args.iterations, args.argc, args.arga, args.threads)
 	elif sys.argv[1] == "runreport":
 		print("running reporting")
-		return run_report([("0,1 2,3", 4), ("0 1", 2), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8), ("0 1 2 3 4 5", 6), ("0,1 2,3 4,5 6,7 8,9", 10), ("0,1,2,3,4 5,6,7,8,9", 10)], bmtemplates.keys(), "./outputs", 4)
+		return run_report([("0,1 2,3", 4), ("0 1", 2), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8), ("0 1 2 3 4 5", 6), ("0,1 2,3 4,5 6,7 8,9", 10), ("0,1,2,3,4 5,6,7,8,9", 10)], bmtemplates.keys(), "./outputs", 16)
 	elif sys.argv[1] == "runtests":
 		print("running tests")
 		return run_tests(templates.keys())
@@ -162,27 +162,28 @@ def run_report(patterns: [(str, int)], tmplversions: [str], output: str, threads
 	for i in range(250):
 		datasets.append([int(random.randint(1,1000)) for i in range(20000)])
 
-	for tmpl in tmplversions:
-		print(f"benchmarking template {tmpl}")
-		for pattern in patterns:
-			print(f"    benchmarking pattern {pattern}")
-			pat = pattern[0].replace(" ", "_").replace(",", "-")
-			out = f"{output}/{tmpl}_{pat}"
+	# for tmpl in tmplversions:
+	tmpl = "v2.2"
+	print(f"benchmarking template {tmpl}")
+	for pattern in patterns:
+		print(f"    benchmarking pattern {pattern}")
+		pat = pattern[0].replace(" ", "_").replace(",", "-")
+		out = f"{output}/{tmpl}_{pat}"
 
-			for i in range(2):
-				if i == 1:
-					doOpenMP = True
-					for t in range(1, threads+1, 1):
-						csvfile = f"{output}/{tmpl}_{pat}_omp_t{t}.csv"
-						generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
-						outputs = run_data(out, datasets, t)
-						write_csv(outputs, csvfile)
-				else:
-					csvfile = f"{output}/{tmpl}_{pat}.csv"
-					doOpenMP = False
+		for i in range(2):
+			if i == 1:
+				doOpenMP = True
+				for t in range(1, threads+1, 1):
+					csvfile = f"{output}/{tmpl}_{pat}_omp_t{t}.csv"
 					generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
-					outputs = run_data(out, datasets, 1)
+					outputs = run_data(out, datasets, t)
 					write_csv(outputs, csvfile)
+			else:
+				csvfile = f"{output}/{tmpl}_{pat}.csv"
+				doOpenMP = False
+				generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
+				outputs = run_data(out, datasets, 1)
+				write_csv(outputs, csvfile)
 
 def write_csv(outputs, output: str):
 	f = open(output, "w")
