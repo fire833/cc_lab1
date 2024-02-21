@@ -25,9 +25,9 @@ templates = {
 }
 
 bmtemplates = {
-	"v1.1": v1_1tmpl,
-	"v1.2": v1_2tmpl,
-	"v2": v2tmpl,
+	# "v1.1": v1_1tmpl,
+	# "v1.2": v1_2tmpl,
+	# "v2": v2tmpl,
 	"v2.1": v2_1tmpl,
 	"v2.2": v2_2tmpl,
 }
@@ -174,13 +174,13 @@ def run_report(patterns: [(str, int)], tmplversions: [str], output: str, threads
 					doOpenMP = True
 					for t in range(1, threads+1, 1):
 						csvfile = f"{output}/{tmpl}_{pat}_omp_t{t}.csv"
-						generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
+						generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 10)
 						outputs = run_data(out, datasets, t)
 						write_csv(outputs, csvfile)
 				else:
 					csvfile = f"{output}/{tmpl}_{pat}.csv"
 					doOpenMP = False
-					generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
+					generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 10)
 					outputs = run_data(out, datasets, 1)
 					write_csv(outputs, csvfile)
 
