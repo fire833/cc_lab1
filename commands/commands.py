@@ -169,15 +169,18 @@ def run_report(patterns: [(str, int)], tmplversions: [str], output: str, threads
 			out = f"{output}/{tmpl}_{pat}"
 
 			for i in range(2):
-				for t in range(threads):
-					doOpenMP = False
-					csvfile = f"{output}/{tmpl}_{pat}.csv"
-					if i == 1:
+				if i == 1:
+					doOpenMP = True
+					for t in range(threads):
 						csvfile = f"{output}/{tmpl}_{pat}_omp_t{t}.csv"
-						doOpenMP = True
-
+						generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
+						outputs = run_data(out, datasets, t)
+						write_csv(outputs, csvfile)
+				else:
+					csvfile = f"{output}/{tmpl}_{pat}.csv"
+					doOpenMP = False
 					generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
-					outputs = run_data(out, datasets, t)
+					outputs = run_data(out, datasets, 1)
 					write_csv(outputs, csvfile)
 
 def write_csv(outputs, output: str):
