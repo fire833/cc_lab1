@@ -65,8 +65,7 @@ int *parse_input(char* input, int parsed_len) {
 
 void compute(int n, int *input, int *output) {
 	#ifdef _OPENMP
-  	int threads = omp_get_num_threads();
-	#pragma omp parallel for num_threads(threads)
+	#pragma omp parallel for
 	#endif
 	for (int i = 0; i < n; i++) {
 		output[i] = {% for sum in sums %}({% for value in sum %}input[i+{{ value }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};
@@ -105,7 +104,7 @@ int main(int argc, char **argv) {
 		}
   	}
 
-	printf("\\"compute\\": %.1f,\\"code\\":0}\\n", ((double) (end - start)));
+	printf("\\"compute\\": %.1f, \\"code\\": 0}\\n", ((double) (end - start)));
 
 	free(input);
 	free(output);

@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
   	}
 
 	// no timing implemented yet, keep for forwards compatibility
-	printf("\\"compute\\": 0,\\"code\\":0}\\n");
+	printf("\\"compute\\": -1, \\"code\\": 0}\\n");
 
 	free(input);
 	free(output);

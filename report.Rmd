@@ -11,18 +11,24 @@ output:
 
 ```{r}
 library(ggplot2)
+library(dplyr)
 files <- list.files(path = "outputs", pattern = ".csv", full.names = TRUE)
 
 datasets <- c()
 
 # files
 for (f in files) {
-  dataset <- read.csv(f)
-  print(summary(dataset$TIMINGS))
-  boxplot(dataset$TIMINGS,
-    col = "Red", data = dataset, main = f,
+  dataset <- read.csv(f)$TIMINGS
+
+  z <- ktrutils::get_z(dataset)
+  dataset_pruned <- dataset[abs(z) < 3]
+
+  print(summary(dataset))
+  print(summary(dataset_pruned))
+  boxplot(dataset_pruned,
+    col = "Red", data = dataset_pruned, main = f,
     horizontal = TRUE
   )
-  append(datasets, dataset)
+  append(datasets, dataset_pruned)
 }
 ```

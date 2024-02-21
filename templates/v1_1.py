@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
 		}
   	}
 
-	printf("\\"compute\\": %.1f,\\"code\\":0}\\n", ((double) (end - start)));
+	printf("\\"compute\\": %.1f, \\"code\\": 0}\\n", ((double) (end - start)));
 
 	free(input);
 	free(output);

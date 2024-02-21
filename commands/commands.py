@@ -13,14 +13,22 @@ import os
 import random
 import csv
 import json
+import itertools
 
 templates = {
-	"v1": v1tmpl,
+	"v1": v1tmpl, # Base program
+	"v1.1": v1_1tmpl, # Add in timing
+	"v1.2": v1_2tmpl, # Add in openmp parallelization.
+	"v2": v2tmpl, # loop unrolling
+	"v2.1": v2_1tmpl,
+	"v2.2": v2_2tmpl, # this template is broken, don't use right now
+}
+
+bmtemplates = {
 	"v1.1": v1_1tmpl,
 	"v1.2": v1_2tmpl,
 	"v2": v2tmpl,
 	"v2.1": v2_1tmpl,
-	"v2.2": v2_2tmpl,
 }
 
 def new_parser():
@@ -51,9 +59,12 @@ def new_parser():
 	rrand.add_argument("--iter", help="Provide the number of iterations you want to execute.", type=int, default=50, dest="iterations")
 	rrand.add_argument("--argc", help="Provide the number of arguments that are expected in your generated program.", type=int, dest="argc")
 	rrand.add_argument("--arga", help="Provide the number of additional arguments that are expected in your generated program.", type=int, dest="arga")
+	rrand.add_argument("--threads", help="Specify the number of threads to run with if compiled with OpenMP.", type=int, default=4, dest="threads")
 	rrand.set_defaults(func=run_rand)
 	rrprt = sub.add_parser("runreport")
 	rtest = sub.add_parser("runtests")
+	renum = sub.add_parser("enumspace")
+	renum.add_argument("--length", help="Provide the number of additional arguments that are expected in your generated program.", type=int, dest="arga")
 
 	return p
 
@@ -67,13 +78,16 @@ def runner(args: ArgumentParser):
 		return run(args.input, [int(arg) for arg in args.values.split(",")])
 	elif sys.argv[1] == "runrand":
 		print("running output program with random inputs")
-		return run_rand(args.input, args.iterations, args.argc, args.arga)
+		return run_rand(args.input, args.iterations, args.argc, args.arga, args.threads)
 	elif sys.argv[1] == "runreport":
 		print("running reporting")
-		return run_report([("0,1 2,3", 4), ("0 1", 2), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8), ("0 1 2 3 4 5", 6), ("0,1 2,3 4,5 6,7 8,9", 10)], templates.keys(), "./outputs")
+		return run_report([("0,1 2,3", 4), ("0 1", 2), ("0,1", 2), ("0,1,2,3 4,5,6,7", 8), ("0 1 2 3 4 5", 6), ("0,1 2,3 4,5 6,7 8,9", 10), ("0,1,2,3,4 5,6,7,8,9", 10)], bmtemplates.keys(), "./outputs", 4)
 	elif sys.argv[1] == "runtests":
 		print("running tests")
 		return run_tests(templates.keys())
+	elif sys.argv[1] == "enumspace":
+		print("outputting enumeration of pattern space")
+		return run_enumeration(50, "")
 
 def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool, unroll_len: int):
 	if templates[template]:
@@ -116,39 +130,42 @@ def generate(pattern: str, template: str, outputs: str, output: str, compiler: s
 	else:
 		print("please specify a valid template to use")
 
-def run(input: str, args: [int]):
+def run(input: str, args: [int], threads: int):
 	parsed = ""
 
 	for i in args:
 		parsed += f"{i},"
 
-	return json.loads(subprocess.run([input, str(len(args)), parsed.rstrip(",")], capture_output=True).stdout.decode()) 
+	return json.loads(subprocess.run([input, str(len(args)), parsed.rstrip(",")], capture_output=True, env={"OMP_NUM_THREADS": str(threads)}).stdout.decode()) 
 
-def run_rand(input: str, iterations: int, arg_count: int, additional_args: int):
+def run_rand(input: str, iterations: int, arg_count: int, additional_args: int, threads: int):
 	s = arg_count + additional_args
 	outputs = []
 
 	for i in range(iterations):
-		outputs.append(run(input, [int(random.randint(1,1000)) for i in range(s)]))
+		outputs.append(run(input, [int(random.randint(1,1000)) for i in range(s)], threads))
 
 	return outputs
 
-def run_report(patterns: [(str, int)], tmplversions: [str], output: str):
+def run_report(patterns: [(str, int)], tmplversions: [str], output: str, threads: int):
 	for tmpl in tmplversions:
+		print(f"benchmarking template {tmpl}")
 		for pattern in patterns:
+			print(f"    benchmarking pattern {pattern}")
 			pat = pattern[0].replace(" ", "_").replace(",", "-")
 			out = f"{output}/{tmpl}_{pat}"
 
 			for i in range(2):
-				doOpenMP = False
-				csvfile = f"{output}/{tmpl}_{pat}.csv"
-				if i == 1:
-					csvfile = f"{output}/{tmpl}_{pat}_omp.csv"
-					doOpenMP = True
+				for t in range(threads):
+					doOpenMP = False
+					csvfile = f"{output}/{tmpl}_{pat}.csv"
+					if i == 1:
+						csvfile = f"{output}/{tmpl}_{pat}_omp_t{t}.csv"
+						doOpenMP = True
 
-				generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
-				outputs = run_rand(out, 250, pattern[1], 20000)
-				write_csv(outputs, csvfile)
+					generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
+					outputs = run_rand(out, 250, pattern[1], 20000, t)
+					write_csv(outputs, csvfile)
 
 def write_csv(outputs, output: str):
 	f = open(output, "w")
@@ -201,3 +218,19 @@ def run_tests(tmplversions: [str]):
 					else:
 						print(f"test {i} failed version {tmpl} omp: {doOmp}, comparison inequality")
 						exit(1)
+
+def run_enumeration(number: int, output: str):
+	# f = open(output, "w")
+	
+	# # iterate through every 
+	# for i in range(0, number):
+	# 	for i in get_num_array(number):
+		
+
+	# f.close()
+	pass
+		
+def get_num_array(number: int):
+	nums = []
+	for i in range(number):
+		nums += str(i)
