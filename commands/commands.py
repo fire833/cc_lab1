@@ -147,7 +147,20 @@ def run_rand(input: str, iterations: int, arg_count: int, additional_args: int, 
 
 	return outputs
 
+def run_data(input: str, datasets: [[int]], threads: int):
+	outputs = []
+
+	for data in datasets:
+		outputs.append(run(input, data, threads))
+
+	return outputs
+
 def run_report(patterns: [(str, int)], tmplversions: [str], output: str, threads: int):
+	# Generate a static dataset for reuse in every test to speed things up
+	datasets = []
+	for i in range(250):
+		datasets.append([int(random.randint(1,1000)) for i in range(20000)])
+
 	for tmpl in tmplversions:
 		print(f"benchmarking template {tmpl}")
 		for pattern in patterns:
@@ -164,7 +177,7 @@ def run_report(patterns: [(str, int)], tmplversions: [str], output: str, threads
 						doOpenMP = True
 
 					generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
-					outputs = run_rand(out, 250, pattern[1], 20000, t)
+					outputs = run_data(out, datasets, t)
 					write_csv(outputs, csvfile)
 
 def write_csv(outputs, output: str):
@@ -206,7 +219,7 @@ def run_tests(tmplversions: [str]):
 					generate(test[0], tmpl, f"tests/test_{tmpl}_{i}_omp.c", tOut, "gcc", False, True, 5)
 				else:
 					generate(test[0], tmpl, f"tests/test_{tmpl}_{i}.c", tOut, "gcc", False, False, 5)
-				res = run(tOut, test[1])
+				res = run(tOut, test[1], 1)
 				if not res["values"]:
 					print(f"test {i} failed version {tmpl} omp: {doOmp}: no values outputs")
 					exit(1)
