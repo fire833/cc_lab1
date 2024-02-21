@@ -21,7 +21,7 @@ templates = {
 	"v1.2": v1_2tmpl, # Add in openmp parallelization.
 	"v2": v2tmpl, # loop unrolling
 	"v2.1": v2_1tmpl,
-	"v2.2": v2_2tmpl, # this template is broken, don't use right now
+	"v2.2": v2_2tmpl,
 }
 
 bmtemplates = {
@@ -29,6 +29,7 @@ bmtemplates = {
 	"v1.2": v1_2tmpl,
 	"v2": v2tmpl,
 	"v2.1": v2_1tmpl,
+	"v2.2": v2_2tmpl,
 }
 
 def new_parser():

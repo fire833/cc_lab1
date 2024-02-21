@@ -7,11 +7,45 @@ output:
     toc: true
     toc_float: true
     toc_depth: 4
+    css: globals.css
 ---
 
-```{r}
-library(ggplot2)
+# Metaprogram overview
+
+### CLI
+
+![](images/meta.jpeg)
+
+### Metaprogram
+
+![](images/meta_prog.jpeg)
+
+# Optimizations Overview
+
+### OpenMP (V1)
+
+![](images/openmp.jpeg)
+
+### Loop Unrolling
+
+#### V2
+
+![](images/loopunrollingv2.jpeg)
+
+#### V2.1
+
+![](images/loopunrollingv2_1.jpeg)
+
+# OSACA
+
+# Benchmarking Results
+
+```{r, message=FALSE}
 library(dplyr)
+library(ggplot2)
+```
+
+```{r}
 files <- list.files(path = "outputs", pattern = ".csv", full.names = TRUE)
 
 datasets <- c()

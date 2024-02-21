@@ -64,7 +64,7 @@ int *parse_input(char* input, int parsed_len) {
 }
 
 void compute(int n, int *input, int *output) {
-    int unroll_iters = 0,  = 0;
+    int unroll_iters = 0, i = 0;
 	#ifdef _OPENMP
 	#pragma omp parallel
 	#endif
@@ -74,8 +74,8 @@ void compute(int n, int *input, int *output) {
 		#ifdef _OPENMP
         #pragma omp for
 		#endif
-        for (i = i; i < unroll_iters; i += {{u}}) {
-            {% for j in range(0, u) %}output[i + {{j}}] = {% for sum in sums %}({% for value in sum %}input[i+{{ value + j }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};{% endfor %}
+        for (int j = i; j < unroll_iters; j += {{u}}) {
+            {% for j in range(0, u) %}output[j + {{j}}] = {% for sum in sums %}({% for value in sum %}input[j+{{ value + j }}]{% if not sum|last == value %}+{% endif %}{% endfor %}){% if not sums|last == sum %}*{% endif %}{% endfor %};{% endfor %}
         }
     {% endfor %}
 	}

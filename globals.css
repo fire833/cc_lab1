@@ -1,0 +1,30 @@
+html, body {
+    background-color: #313131;
+    color: antiquewhite;
+}
+
+pre {
+    background-color: #f1f1f1;
+}
+
+.r {
+    background-color: #f5f5f5;
+}
+
+pre:hover {
+    transition: 0.2s;
+    background-color: rgb(180, 183, 185);
+}
+
+.r:hover {
+    transition: 0.2s;
+    background-color: rgb(209, 209, 209);
+}
+
+li {
+    color: antiquewhite;
+}
+
+.tocify-item {
+    color: #121212;;
+}
