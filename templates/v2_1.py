@@ -13,6 +13,7 @@ const int arg_count = {{ arg_count }};
 
 int *parse_input(char* input, int parsed_len) {
 	int index = 0;
+    printf(" ");
 	int *output = (int *)calloc(parsed_len, sizeof(int));
 	int sum = 0;
   	for (int i = 0; i < strlen(input); i++) {
