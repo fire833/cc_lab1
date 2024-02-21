@@ -171,7 +171,7 @@ def run_report(patterns: [(str, int)], tmplversions: [str], output: str, threads
 			for i in range(2):
 				if i == 1:
 					doOpenMP = True
-					for t in range(threads):
+					for t in range(1, threads+1, 1):
 						csvfile = f"{output}/{tmpl}_{pat}_omp_t{t}.csv"
 						generate(pattern[0], tmpl, out + ".c", out, "gcc", False, doOpenMP, 1000)
 						outputs = run_data(out, datasets, t)
