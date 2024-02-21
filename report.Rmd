@@ -46,116 +46,107 @@ library(ggplot2)
 ```
 
 ```{r}
-v1_1_1_0_1_t1 <- read.csv("benchmarks/v1.1_0_1_omp_t1.csv")
-v1_1_1_0_1_t8 <- read.csv("benchmarks/v1.1_0_1_omp_t8.csv")
-v1_1_1_0_1_t16 <- read.csv("benchmarks/v1.1_0_1_omp_t16.csv")
+v1_1_t1 <- read.csv("benchmarks/v1.1_0-1_2-3_4-5_6-7_8-9_omp_t1.csv")$TIMINGS
+v1_1_t8 <- read.csv("benchmarks/v1.1_0-1_2-3_4-5_6-7_8-9_omp_t8.csv")$TIMINGS
+v1_1_t16 <- read.csv("benchmarks/v1.1_0-1_2-3_4-5_6-7_8-9_omp_t16.csv")$TIMINGS
 
-v1_2_1_0_1_t1 <- read.csv("benchmarks/v1.2_0_1_omp_t1.csv")
-v1_2_1_0_1_t8 <- read.csv("benchmarks/v1.2_0_1_omp_t8.csv")
-v1_2_1_0_1_t16 <- read.csv("benchmarks/v1.2_0_1_omp_t16.csv")
+v1_2_t1 <- read.csv("benchmarks/v1.2_0-1_2-3_4-5_6-7_8-9_omp_t1.csv")$TIMINGS
+v1_2_t8 <- read.csv("benchmarks/v1.2_0-1_2-3_4-5_6-7_8-9_omp_t8.csv")$TIMINGS
+v1_2_t16 <- read.csv("benchmarks/v1.2_0-1_2-3_4-5_6-7_8-9_omp_t16.csv")$TIMINGS
 
-v2_0_1_0_1_t1 <- read.csv("benchmarks/v2_0_1_omp_t1.csv")
-v2_0_1_0_1_t8 <- read.csv("benchmarks/v2_0_1_omp_t8.csv")
-v2_0_1_0_1_t16 <- read.csv("benchmarks/v2_0_1_omp_t16.csv")
+v2_0_t1 <- read.csv("benchmarks/v2_0-1_2-3_4-5_6-7_8-9_omp_t1.csv")$TIMINGS
+v2_0_t8 <- read.csv("benchmarks/v2_0-1_2-3_4-5_6-7_8-9_omp_t8.csv")$TIMINGS
+v2_0_t16 <- read.csv("benchmarks/v2_0-1_2-3_4-5_6-7_8-9_omp_t16.csv")$TIMINGS
 
-v2_1_1_0_1_t1 <- read.csv("benchmarks/v2.1_0_1_omp_t1.csv")
-v2_1_1_0_1_t8 <- read.csv("benchmarks/v2.1_0_1_omp_t8.csv")
-v2_1_1_0_1_t16 <- read.csv("benchmarks/v2.1_0_1_omp_t16.csv")
+v2_1_t1 <- read.csv("benchmarks/v2.1_0-1_2-3_4-5_6-7_8-9_omp_t1.csv")$TIMINGS
+v2_1_t8 <- read.csv("benchmarks/v2.1_0-1_2-3_4-5_6-7_8-9_omp_t8.csv")$TIMINGS
+v2_1_t16 <- read.csv("benchmarks/v2.1_0-1_2-3_4-5_6-7_8-9_omp_t16.csv")$TIMINGS
 
-v2_2_1_0_1_t1 <- read.csv("benchmarks/v2.2_0_1_omp_t1.csv")
-v2_2_1_0_1_t8 <- read.csv("benchmarks/v2.2_0_1_omp_t8.csv")
-v2_2_1_0_1_t16 <- read.csv("benchmarks/v2.2_0_1_omp_t16.csv")
+v2_2_t1 <- read.csv("benchmarks/v2.2_0-1_2-3_4-5_6-7_8-9_omp_t1.csv")$TIMINGS
+v2_2_t8 <- read.csv("benchmarks/v2.2_0-1_2-3_4-5_6-7_8-9_omp_t8.csv")$TIMINGS
+v2_2_t16 <- read.csv("benchmarks/v2.2_0-1_2-3_4-5_6-7_8-9_omp_t16.csv")$TIMINGS
+
+v_1_1 <- read.csv("benchmarks/v1.1_0-1_2-3_4-5_6-7_8-9.csv")$TIMINGS
+v_1_2 <- read.csv("benchmarks/v1.2_0-1_2-3_4-5_6-7_8-9.csv")$TIMINGS
+v_2_0 <- read.csv("benchmarks/v2_0-1_2-3_4-5_6-7_8-9.csv")$TIMINGS
+v_2_1 <- read.csv("benchmarks/v2.1_0-1_2-3_4-5_6-7_8-9.csv")$TIMINGS
+v_2_2 <- read.csv("benchmarks/v2.2_0-1_2-3_4-5_6-7_8-9.csv")$TIMINGS
 ```
 
+# OpenMP Performance across versions
+
 ```{r}
-summary(v1_1_1_0_1_t1)
-summary(v1_1_1_0_1_t8)
-summary(v1_1_1_0_1_t16)
+vec_t1 <- rep(c("1 Thread"), 250)
+vec_t8 <- rep(c("8 Threads"), 250)
+vec_t16 <- rep(c("16 Threads"), 250)
+ref <- c()
+ref <- append(ref, vec_t1)
+ref <- append(ref, vec_t8)
+ref <- append(ref, vec_t16)
 
-summary(v1_2_1_0_1_t1)
-summary(v1_2_1_0_1_t8)
-summary(v1_2_1_0_1_t16)
+v11data <- append(c(), values = v1_1_t1)
+v11data <- append(v11data, v1_1_t8)
+v11data <- append(v11data, v1_1_t16)
+v12data <- append(c(), values = v1_2_t1)
+v12data <- append(v12data, v1_2_t8)
+v12data <- append(v12data, v1_2_t16)
+v20data <- append(c(), values = v2_0_t1)
+v20data <- append(v20data, v2_0_t8)
+v20data <- append(v20data, v2_0_t16)
+v21data <- append(c(), values = v2_1_t1)
+v21data <- append(v21data, v2_1_t8)
+v21data <- append(v21data, v2_1_t16)
+v22data <- append(c(), values = v2_2_t1)
+v22data <- append(v22data, v2_2_t8)
+v22data <- append(v22data, v2_2_t16)
 
-summary(v2_0_1_0_1_t1)
-summary(v2_0_1_0_1_t8)
-summary(v2_0_1_0_1_t16)
+dataset_omp <- data.frame(
+  REF = ref, V11 = v11data, V12 = v12data,
+  V20 = v20data, V21 = v21data, V22 = v22data
+)
 
-summary(v2_1_1_0_1_t1)
-summary(v2_1_1_0_1_t8)
-summary(v2_1_1_0_1_t16)
-
-summary(v2_2_1_0_1_t1)
-summary(v2_2_1_0_1_t8)
-summary(v2_2_1_0_1_t16)
+jpeg("images/v1.1.jpeg")
+with(dataset_omp, boxplot(V11 ~ REF, main = "V 1.1 Data (No OpenMP)", col = "Red"))
+dev.off()
+jpeg("images/v1.2.jpeg")
+with(dataset_omp, boxplot(V12 ~ REF, main = "V 1.2 Data (Basic OpenMP)", col = "Red"))
+dev.off()
+jpeg("images/v2.0.jpeg")
+with(dataset_omp, boxplot(V20 ~ REF, main = "V 2.0 Data (Basic Loop Unrolling)", col = "Red"))
+dev.off()
+jpeg("images/v2.1.jpeg")
+with(dataset_omp, boxplot(V21 ~ REF, main = "V 2.1 Data (Loop Unrolling V2)", col = "Red"))
+dev.off()
+jpeg("images/v2.2.jpeg")
+with(dataset_omp, boxplot(V22 ~ REF, main = "V 2.2 Data (Optimized Parallel Loop Unrolling)", col = "Red"))
+dev.off()
 ```
 
-```{r}
-boxplot(v1_1_1_0_1_t1,
-  main = "v1.1 - 1 thread"
-)
-
-boxplot(v1_1_1_0_1_t8,
-  main = "v1.1 - 8 thread"
-)
-
-boxplot(v1_1_1_0_1_t16,
-  main = "v1.1 - 16 thread"
-)
-```
+# Per Optimization Performance (no OpenMP)
 
 ```{r}
-boxplot(v1_2_1_0_1_t1,
-  main = "v1.2 - 1 thread"
-)
+vec_v11 <- rep(c("v1.1"), 250)
+vec_v12 <- rep(c("v1.2"), 250)
+vec_v20 <- rep(c("v2.0"), 250)
+vec_v21 <- rep(c("v2.1"), 250)
+vec_v22 <- rep(c("v2.2"), 250)
+ref <- c()
+ref <- append(ref, vec_v11)
+ref <- append(ref, vec_v12)
+ref <- append(ref, vec_v20)
+ref <- append(ref, vec_v21)
+ref <- append(ref, vec_v22)
 
-boxplot(v1_2_1_0_1_t8,
-  main = "v1.2 - 8 thread"
-)
+set <- c()
+set <- append(set, v_1_1)
+set <- append(set, v_1_2)
+set <- append(set, v_2_0)
+set <- append(set, v_2_1)
+set <- append(set, v_2_2)
 
-boxplot(v1_2_1_0_1_t16,
-  main = "v1.2 - 16 thread"
-)
-```
+dataset_opt <- data.frame(REF = ref, SET = set)
 
-```{r}
-boxplot(v2_0_1_0_1_t1,
-  main = "v2 - 1 thread"
-)
-
-boxplot(v2_0_1_0_1_t8,
-  main = "v2 - 8 thread"
-)
-
-boxplot(v2_0_1_0_1_t16,
-  main = "v2 - 16 thread"
-)
-```
-
-```{r}
-boxplot(v2_1_1_0_1_t1,
-  main = "v2.1 - 1 thread"
-)
-
-boxplot(v2_1_1_0_1_t8,
-  main = "v2.1 - 8 thread"
-)
-
-boxplot(v2_1_1_0_1_t16,
-  main = "v2.1 - 16 thread"
-)
-```
-
-
-```{r}
-boxplot(v2_2_1_0_1_t1,
-  main = "v2.2 - 1 thread"
-)
-
-boxplot(v2_2_1_0_1_t8,
-  main = "v2.2 - 8 thread"
-)
-
-boxplot(v2_2_1_0_1_t16,
-  main = "v2.2 - 16 thread"
-)
+jpeg("images/per_optimization.jpeg")
+with(dataset_opt, boxplot(SET ~ REF, main = "Single Threaded Per Optimization Performance", col = "Red"))
+dev.off()
 ```
